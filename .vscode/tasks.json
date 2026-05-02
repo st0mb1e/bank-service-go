@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "migrate:run",
+      "type": "shell",
+      "command": "go",
+      "args": ["run", "./cli/migrate"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "app:run",
+      "type": "shell",
+      "command": "go",
+      "args": ["run", "./cli/app"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    }
+  ]
+}
