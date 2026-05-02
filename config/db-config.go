@@ -18,7 +18,6 @@ func (c *DbConfig) GetDBUrl() string {
 }
 
 func NewDbConfigFromEnv() *DbConfig {
-	fmt.Println(os.Getenv("DB_USER"))
 	return &DbConfig{
 		User:     os.Getenv("DB_USER"),
 		Password: os.Getenv("DB_PASSWORD"),
