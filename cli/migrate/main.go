@@ -13,16 +13,11 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	dbConfig := config.NewDbConfigFromEnv()
-
-	m, err := migrate.New("file://migrations", dbConfig.GetDBUrl())
+	m, err := migrate.New("file://migrations", config.NewDbConfigFromEnv().GetDBUrl())
 	if err != nil {
-		log.Fatalf("Failed to migrate due to error: %v", err)
-		return
+		log.Fatal(err)
 	}
-	if err := m.Up(); err != nil {
-		log.Fatalf("Failed to migrate up due to error: %v", err)
-		return
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatal(err)
 	}
-	log.Println("Migration completed successfully")
 }
