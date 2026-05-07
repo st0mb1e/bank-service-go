@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/beevik/etree"
@@ -65,8 +66,28 @@ func ParseKeyRatePercent(rawBody []byte) (float64, error) {
 	if len(krElements) == 0 {
 		return 0, errors.New("key rate KR elements not found")
 	}
-	latest := krElements[len(krElements)-1]
-	rateEl := latest.FindElement("./Rate")
+	// Берём ставку по самой свежей дате (DT), а не просто последнюю строку в XML:
+	// ЦБ не гарантирует порядок.
+	var chosen *etree.Element
+	var chosenAt time.Time
+	for _, kr := range krElements {
+		dtEl := kr.FindElement("./DT")
+		if dtEl == nil {
+			continue
+		}
+		ts, err := time.Parse(time.RFC3339, strings.TrimSpace(dtEl.Text()))
+		if err != nil {
+			continue
+		}
+		if chosen == nil || ts.After(chosenAt) {
+			chosen = kr
+			chosenAt = ts
+		}
+	}
+	if chosen == nil {
+		return 0, errors.New("no KR with parseable DT")
+	}
+	rateEl := chosen.FindElement("./Rate")
 	if rateEl == nil {
 		return 0, errors.New("Rate tag missing")
 	}
